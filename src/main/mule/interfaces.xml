@@ -21,4 +21,55 @@ output application/json
 		</ee:transform>
 		<logger level="INFO" doc:name="End heartbeat flow" doc:id="3ad5a638-a540-49bb-8dfa-980f86231b1e" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="sol-sys-sftp" />
 	</flow>
+	<flow name="post:\events:application\json:Router" doc:id="9f7c09e6-c4d1-4e4e-a585-50cf3029ac0c">
+		<ee:transform doc:name="Transform Message" doc:id="4adda723-ca23-460e-aee1-52b68111c431">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "File <filename> created successfuly."
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="get:\events\(date)\originalFile:Router" doc:id="7aaca174-2740-43f5-b5bc-be71b191285b" >
+		<flow-ref doc:name="listEvents" doc:id="23ce3bf7-837d-4a5e-ab67-76c73af0f133" name="listEvents"/>
+		<ee:transform doc:name="Transform Message" doc:id="5c40fa5e-733a-4039-9763-1801e2a1795e" >
+			<ee:variables >
+				<ee:set-variable variableName="date" ><![CDATA[attributes.uriParams.'date']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message1" doc:id="fe18b3fc-9324-408b-87b6-2377b6861f89" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  correlationId: "ppppeeaaaazzz",
+  code: "NOT_FOUND",
+  description: "File 2024-12-02.csv not found."
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="get:\events\(date)\processedFile:Router" doc:id="2a4bf50f-9ae6-4627-9568-45871cb3f7f0" >
+		<ee:transform doc:name="Transform Message" doc:id="e6365f76-1880-4d1f-b31a-cf2c8a5432f5" >
+			<ee:variables >
+				<ee:set-variable variableName="date" ><![CDATA[attributes.uriParams.'date']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message1" doc:id="e267b46d-f5de-4881-ae6b-16bef6b7ddfa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  correlationId: "ppppeeaaaazzz",
+  code: "NOT_FOUND",
+  description: "File tracks_2024-12-02.json not found."
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>

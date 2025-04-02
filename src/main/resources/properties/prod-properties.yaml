@@ -6,6 +6,8 @@ api:
   name: "${artifactId}-${mule.env}"
   version: "${version}"
   
-database:
-  user: "toto"
-  password: "${secure::database.password}"
+sftp:
+  host: "eu-central-1.sftpcloud.io"
+  port: "22"
+  user: "e24f4ec622a246b8a68c1e4551cdbc34"
+  password: "${secure::sftp.password}"
