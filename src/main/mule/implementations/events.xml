@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<sub-flow name="postEvents" doc:id="70abe53c-0e66-4ac5-b6fa-25ea03053675" >
 		<sftp:write doc:name="Write original CSV" doc:id="9845ef8e-6d3a-4ac3-b0b0-dca7836a57eb" config-ref="SFTP_Config" path='#["/sftp/" ++ vars.date ++ ".csv"]'>
 			<sftp:content ><![CDATA[#[%dw 2.0
@@ -24,8 +25,14 @@ output application/json
 payload.tracks]]]></sftp:content>
 		</sftp:write>
 	</sub-flow>
+	<sub-flow name="getEvents" doc:id="69b1ccb8-ec10-43b4-82a5-0b6f26405b7f" >
+		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;if(vars.fileType == "csv")&#10;    vars.date ++ ".csv"&#10;else&#10;    "event_" ++ vars.date ++ ".json"]' doc:name="[fileName]" doc:id="07c42234-4f60-4a12-af60-786521fbd979" variableName="fileName"/>
+		<validation:is-true doc:name="Check if fileName is present in fileNames" doc:id="ef2452fa-47ec-4320-ae93-93464da3db46" expression="#[vars.fileNames contains(vars.fileName)]"/>
+		<sftp:read doc:name="Read" doc:id="e66d9d6a-e29d-4f8a-81dc-ad370884f284" config-ref="SFTP_Config" path='#["sftp/" ++ vars.fileName]'/>
+	</sub-flow>
 	<sub-flow name="listEvents" doc:id="bc9d2cd6-ea36-4621-ae8e-5abf6eac994e" >
 		<sftp:list doc:name="List" doc:id="2074b77c-8781-4311-8f76-178e6b174aee" config-ref="SFTP_Config" directoryPath="sftp"/>
+		<set-variable value="#[payload map $.attributes.fileName]" doc:name="[fileNames]" doc:id="44fb7cd3-bf6c-43dd-9fc7-2c05c5841d07" variableName="fileNames"/>
 		<logger level="INFO" doc:name="Logger" doc:id="c24f9b66-13cf-4fba-9847-4d6310a0168b" />
 	</sub-flow>
 </mule>
