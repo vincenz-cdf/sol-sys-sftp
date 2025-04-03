@@ -40,7 +40,9 @@ output application/json
 		<logger level="INFO" doc:name="End flow" doc:id="0f026e20-b606-4883-8115-6c40ef4a179e" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="sol-sys-sftp" />
 	</flow>
 	<flow name="get:\events\(date):Router" doc:id="3ccae3fb-386c-4e46-a470-f28bf9375356" >
+		<logger level="INFO" doc:name="Start flow" doc:id="699f12c4-7884-406d-b1ff-da8346d015a8" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="${app.name}" />
 		<flow-ref doc:name="listEvents" doc:id="23ce3bf7-837d-4a5e-ab67-76c73af0f133" name="listEvents" />
+		<logger level="INFO" doc:name="Logger" doc:id="5cedf01f-2204-4b49-9c42-3a92803fe56d" message="#[payload]"/>
 		<ee:transform doc:name="Transform Message" doc:id="14c73c8a-b1f1-4a8b-ac2b-add8646f0fc6" >
 			<ee:variables >
 				<ee:set-variable variableName="date" ><![CDATA[attributes.uriParams.'date']]></ee:set-variable>
@@ -58,5 +60,6 @@ output application/json
 } as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="End flow" doc:id="f1f6aff6-6858-4595-b720-4cd41a8116e1" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="sol-sys-sftp" />
 	</flow>
 </mule>
