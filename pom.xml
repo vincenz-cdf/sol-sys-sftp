@@ -72,13 +72,6 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
-			<groupId>69f300d3-91e0-4b6b-a1f5-8ea4f765d901</groupId>
-			<artifactId>solo_sys_sftp</artifactId>
-			<version>1.0.6</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
 			<groupId>org.mule.connectors</groupId>
 			<artifactId>mule-sftp-connector</artifactId>
 			<version>2.4.3</version>
@@ -89,6 +82,13 @@
 			<artifactId>mule-validation-module</artifactId>
 			<version>2.0.7</version>
 			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>69f300d3-91e0-4b6b-a1f5-8ea4f765d901</groupId>
+			<artifactId>solo_sys_sftp</artifactId>
+			<version>1.0.8</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
 		</dependency>
 	</dependencies>
 
