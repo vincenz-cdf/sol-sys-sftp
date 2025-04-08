@@ -1,2 +1,5 @@
 sftp:
   password: "![mvC/Y35LxH4CaR5Ui5bHanMqt9K6BjmNIvyPoat87a4=]"
+  
+pgp:
+  passphrase: "![kCCvgwtU605EWm1NC6v4xA==]"

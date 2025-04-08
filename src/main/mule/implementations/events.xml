@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
 	<sub-flow name="postEvents" doc:id="70abe53c-0e66-4ac5-b6fa-25ea03053675" >
-		<sftp:write doc:name="Write original CSV" doc:id="9845ef8e-6d3a-4ac3-b0b0-dca7836a57eb" config-ref="SFTP_Config" path='#["/sftp/" ++ vars.date ++ ".csv"]'>
-			<sftp:content ><![CDATA[#[%dw 2.0
+		<set-variable value="#[payload]" doc:name="[originalPayload]" doc:id="83a501d5-f46f-4ae3-a9fd-8b608c11f566" variableName="originalPayload"/>
+		<crypto:pgp-encrypt doc:name="Pgp encrypt csv" doc:id="f9932d08-1ed6-48fa-97ca-9692f3ac9e84" config-ref="PublicPGPCONFIG" keyId="mulepub1">
+			<crypto:content ><![CDATA[#[%dw 2.0
 output application/csv quoteValues=true
 ---
-payload.users map {
+vars.originalPayload.users map {
     firstname: $.firstname,
     lastname: $.lastname,
     email: $.email,
     genres: $.genres joinBy ","
-}]]]></sftp:content>
+}]]]></crypto:content>
+		</crypto:pgp-encrypt>
+		<sftp:write doc:name="Write original CSV" doc:id="9845ef8e-6d3a-4ac3-b0b0-dca7836a57eb" config-ref="SFTP_Config" path='#["/sftp/" ++ vars.date ++ ".csv"]'>
 		</sftp:write>
 		<logger level="INFO" doc:name="Logger" doc:id="dbc126e3-2bad-4e6e-83df-bf9c1b0beb7c" />
 		<sftp:write doc:name="Write processed JSON" doc:id="9cf693b7-1d67-47fb-b3bf-1d9a9c1e3211" config-ref="SFTP_Config" path='#["/sftp/event_" ++ vars.date ++ ".json"]' >
@@ -23,8 +27,8 @@ payload.users map {
 output application/json
 ---
 {
-	genres: payload.genres,
-	tracks: payload.tracks
+	genres: vars.originalPayload.genres,
+	tracks: vars.originalPayload.tracks
 }]]]></sftp:content>
 		</sftp:write>
 	</sub-flow>
@@ -32,6 +36,12 @@ output application/json
 		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;if(vars.fileType == "csv")&#10;    vars.date ++ ".csv"&#10;else&#10;    "event_" ++ vars.date ++ ".json"]' doc:name="[fileName]" doc:id="07c42234-4f60-4a12-af60-786521fbd979" variableName="fileName"/>
 		<validation:is-true doc:name="Check fileNames contains fileName" doc:id="ef2452fa-47ec-4320-ae93-93464da3db46" expression="#[vars.fileNames contains(vars.fileName)]"/>
 		<sftp:read doc:name="Read" doc:id="e66d9d6a-e29d-4f8a-81dc-ad370884f284" config-ref="SFTP_Config" path='#["sftp/" ++ vars.fileName]'/>
+		<choice doc:name="Choice" doc:id="3ac5571e-8297-4bff-8551-15ff33a74974" >
+			<when expression='#[vars.fileType == "csv"]'>
+				<crypto:pgp-decrypt doc:name="Pgp decrypt csv" doc:id="645f449f-c203-4b86-8c31-5a4e5f04b736" config-ref="PrivatePGPCONFIG" >
+				</crypto:pgp-decrypt>
+			</when>
+		</choice>
 	</sub-flow>
 	<sub-flow name="listEvents" doc:id="bc9d2cd6-ea36-4621-ae8e-5abf6eac994e" >
 		<sftp:list doc:name="List" doc:id="2074b77c-8781-4311-8f76-178e6b174aee" config-ref="SFTP_Config" directoryPath="sftp"/>
