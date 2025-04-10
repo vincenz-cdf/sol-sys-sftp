@@ -19,14 +19,15 @@ vars.originalPayload.users map {
     genres: $.genres joinBy ","
 }]]]></crypto:content>
 		</crypto:pgp-encrypt>
-		<sftp:write doc:name="Write original CSV" doc:id="9845ef8e-6d3a-4ac3-b0b0-dca7836a57eb" config-ref="SFTP_Config" path='#["/sftp/" ++ vars.date ++ ".csv"]'>
+		<sftp:write doc:name="Write original CSV" doc:id="9845ef8e-6d3a-4ac3-b0b0-dca7836a57eb" config-ref="SFTP_Config" path='#["/sftp/" ++ vars.sendDate ++ ".csv"]'>
 		</sftp:write>
 		<logger level="INFO" doc:name="Logger" doc:id="dbc126e3-2bad-4e6e-83df-bf9c1b0beb7c" />
-		<sftp:write doc:name="Write processed JSON" doc:id="9cf693b7-1d67-47fb-b3bf-1d9a9c1e3211" config-ref="SFTP_Config" path='#["/sftp/event_" ++ vars.date ++ ".json"]' >
+		<sftp:write doc:name="Write processed JSON" doc:id="9cf693b7-1d67-47fb-b3bf-1d9a9c1e3211" config-ref="SFTP_Config" path='#["/sftp/event_" ++ vars.sendDate ++ ".json"]' >
 			<sftp:content ><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
+	eventDate: vars.originalPayload.eventDate,
 	genres: vars.originalPayload.genres,
 	tracks: vars.originalPayload.tracks
 }]]]></sftp:content>

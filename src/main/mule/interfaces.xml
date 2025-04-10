@@ -24,8 +24,9 @@ output application/json
 	</flow>
 	<flow name="post:\events:application\json:Router" doc:id="9f7c09e6-c4d1-4e4e-a585-50cf3029ac0c">
 		<logger level="INFO" doc:name="Start flow" doc:id="82e3cc54-d473-4e16-9081-0da92031ccff" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="${app.name}" />
-		<validation:is-true doc:name="Validator date" doc:id="8176112b-f2a5-4624-b025-3f179c6e5866" expression="#[import try from dw::Runtime output application/json fun isValidDate(dateStr: String): Boolean = do { try(() -&gt; dateStr as Date).success } --- isValidDate(payload.date)]"/>
-		<set-variable value="#[payload.date as String]" doc:name="[date]" doc:id="2b48fedf-6e2b-4cca-bbbb-f70b8d5f6389" variableName="date"/>
+		<validation:is-true doc:name="Validator sendDate" doc:id="8176112b-f2a5-4624-b025-3f179c6e5866" expression="#[import try from dw::Runtime output application/json fun isValidDate(dateStr: String): Boolean = do { try(() -&gt; dateStr as Date).success } --- isValidDate(payload.sendDate)]"/>
+		<set-variable value="#[payload.sendDate as String]" doc:name="[sendDate]" doc:id="2b48fedf-6e2b-4cca-bbbb-f70b8d5f6389" variableName="sendDate"/>
+		<validation:is-true doc:name="Validator eventDate" doc:id="4afe691b-ffba-4188-aaef-1cbc995ffecd" expression="#[import try from dw::Runtime fun isValidDate(dateStr: String, sendDateStr: String): Boolean = do { var dateValid = try(() -&gt; dateStr as Date).success var eventDate = dateStr as Date var sendDate = sendDateStr as Date --- if (dateValid) dateValid and (eventDate &gt;= sendDate) else false } output application/json --- isValidDate(payload.eventDate, vars.sendDate)]"/>
 		<flow-ref doc:name="postEvents" doc:id="9909f74a-9455-4dc4-af65-e690637fc881" name="postEvents"/>
 		<ee:transform doc:name="Transform Message" doc:id="4adda723-ca23-460e-aee1-52b68111c431">
 			<ee:message>
