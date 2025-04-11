@@ -35,7 +35,9 @@ output application/json
 	</sub-flow>
 	<sub-flow name="getEvents" doc:id="69b1ccb8-ec10-43b4-82a5-0b6f26405b7f" >
 		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;if(vars.fileType == "csv")&#10;    vars.date ++ ".csv"&#10;else&#10;    "event_" ++ vars.date ++ ".json"]' doc:name="[fileName]" doc:id="07c42234-4f60-4a12-af60-786521fbd979" variableName="fileName"/>
-		<validation:is-true doc:name="Check fileNames contains fileName" doc:id="ef2452fa-47ec-4320-ae93-93464da3db46" expression="#[vars.fileNames contains(vars.fileName)]"/>
+		<validation:is-true doc:name="Check fileNames contains fileName" doc:id="ef2452fa-47ec-4320-ae93-93464da3db46" expression="#[vars.fileNames contains(vars.fileName)]">
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="MUSIK:FILE_NOT_FOUND" />
+		</validation:is-true>
 		<sftp:read doc:name="Read" doc:id="e66d9d6a-e29d-4f8a-81dc-ad370884f284" config-ref="SFTP_Config" path='#["sftp/" ++ vars.fileName]'/>
 		<choice doc:name="Choice" doc:id="3ac5571e-8297-4bff-8551-15ff33a74974" >
 			<when expression='#[vars.fileType == "csv"]'>

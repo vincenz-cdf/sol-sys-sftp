@@ -24,17 +24,21 @@ output application/json
 	</flow>
 	<flow name="post:\events:application\json:Router" doc:id="9f7c09e6-c4d1-4e4e-a585-50cf3029ac0c">
 		<logger level="INFO" doc:name="Start flow" doc:id="82e3cc54-d473-4e16-9081-0da92031ccff" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="${app.name}" />
-		<validation:is-true doc:name="Validator sendDate" doc:id="8176112b-f2a5-4624-b025-3f179c6e5866" expression="#[import try from dw::Runtime output application/json fun isValidDate(dateStr: String): Boolean = do { try(() -&gt; dateStr as Date).success } --- isValidDate(payload.sendDate)]"/>
+		<validation:is-true doc:name="Validator sendDate" doc:id="8176112b-f2a5-4624-b025-3f179c6e5866" expression="#[import try from dw::Runtime output application/json fun isValidDate(dateStr: String): Boolean = do { try(() -&gt; dateStr as Date).success } --- isValidDate(payload.sendDate)]">
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="MUSIK:INVALID_DATE" />
+		</validation:is-true>
 		<set-variable value="#[payload.sendDate as String]" doc:name="[sendDate]" doc:id="2b48fedf-6e2b-4cca-bbbb-f70b8d5f6389" variableName="sendDate"/>
-		<validation:is-true doc:name="Validator eventDate" doc:id="4afe691b-ffba-4188-aaef-1cbc995ffecd" expression="#[import try from dw::Runtime fun isValidDate(dateStr: String, sendDateStr: String): Boolean = do { var dateValid = try(() -&gt; dateStr as Date).success var eventDate = dateStr as Date var sendDate = sendDateStr as Date --- if (dateValid) dateValid and (eventDate &gt;= sendDate) else false } output application/json --- isValidDate(payload.eventDate, vars.sendDate)]"/>
+		<validation:is-true doc:name="Validator eventDate" doc:id="4afe691b-ffba-4188-aaef-1cbc995ffecd" expression="#[import try from dw::Runtime fun isValidDate(dateStr: String, sendDateStr: String): Boolean = do { var dateValid = try(() -&gt; dateStr as Date).success var eventDate = dateStr as Date var sendDate = sendDateStr as Date --- if (dateValid) dateValid and (eventDate &gt;= sendDate) else false } output application/json --- isValidDate(payload.eventDate, vars.sendDate)]">
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="MUSIK:INVALID_DATE" />
+		</validation:is-true>
 		<flow-ref doc:name="postEvents" doc:id="9909f74a-9455-4dc4-af65-e690637fc881" name="postEvents"/>
-		<ee:transform doc:name="Transform Message" doc:id="4adda723-ca23-460e-aee1-52b68111c431">
+		<ee:transform doc:name="201 OK" doc:id="4adda723-ca23-460e-aee1-52b68111c431">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  message: "File <filename> created successfuly."
+  message: "Files created successfuly."
 } as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
@@ -42,7 +46,9 @@ output application/json
 	</flow>
 	<flow name="get:\events\(date):Router" doc:id="3ccae3fb-386c-4e46-a470-f28bf9375356" >
 		<logger level="INFO" doc:name="Start flow" doc:id="699f12c4-7884-406d-b1ff-da8346d015a8" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="${app.name}" />
-		<validation:is-true doc:name="Validator date" doc:id="69938a90-b9ad-4136-9f0b-dc39136cb00f" expression="#[import try from dw::Runtime output application/json fun isValidDate(dateStr: String): Boolean = do { try(() -&gt; dateStr as Date).success } --- isValidDate(attributes.uriParams.date)]" />
+		<validation:is-true doc:name="Validator date" doc:id="69938a90-b9ad-4136-9f0b-dc39136cb00f" expression="#[import try from dw::Runtime output application/json fun isValidDate(dateStr: String): Boolean = do { try(() -&gt; dateStr as Date).success } --- isValidDate(attributes.uriParams.date)]" >
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="MUSIK:INVALID_DATE" />
+		</validation:is-true>
 		<set-variable value="#[attributes.uriParams.date as String]" doc:name="[date]" doc:id="9f5db555-fe66-4a12-953a-baa86b764f59" variableName="date" />
 		<set-variable value="#[attributes.queryParams.fileType]" doc:name="[fileType]" doc:id="a017aae6-cbf3-4b8d-a12f-bdbe1c63c57a" variableName="fileType"/>
 		<flow-ref doc:name="listEvents" doc:id="23ce3bf7-837d-4a5e-ab67-76c73af0f133" name="listEvents" />

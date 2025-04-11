@@ -9,6 +9,16 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		<logger level="INFO" doc:name="Error" doc:id="0253c776-33ce-4f94-9920-c707429de4b5" />
 	</sub-flow>
 	<error-handler name="globalErrorHandler" doc:id="31bf61d0-f37e-4f76-839f-98748cbbf955" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="File not found" doc:id="ce0b6fe8-37bc-4edd-9a2e-52bbcac67a4c" type="MUSIK:FILE_NOT_FOUND">
+			<set-variable value="NOT_FOUND" doc:name="[code]" doc:id="62ec1e3a-6cab-4305-ac0c-23928bad7f14" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="506a7b8d-cd23-44d5-bb84-5fcf05b12f78" name="errorHandler" />
+			<set-variable value="404" doc:name="[httpStatus]" doc:id="c2a46972-ba80-4025-b013-8831d6d3b3fa" variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Invalid date" doc:id="6d477727-4d6d-488f-ae84-0aee9f90e721" type="MUSIK:INVALID_DATE">
+			<set-variable value="BAD_REQUEST" doc:name="[code]" doc:id="443756fc-bcca-42c6-9c45-aaedc6843c61" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="1c5cf52e-a1e8-4a14-b962-3da5e2611535" name="errorHandler" />
+			<set-variable value="400" doc:name="[httpStatus]" doc:id="071c1244-6a2e-4491-a3d1-65e912a5d5aa" variableName="httpStatus" />
+		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="Bad request" doc:id="98a88a9a-fae1-42af-a007-89513e44bc8d" type="APIKIT:BAD_REQUEST">
 			<set-variable value="BAD_REQUEST" doc:name="[code]" doc:id="a7da8ad4-574e-44b6-9d3f-9faa6523c8cd" variableName="code"/>
 			<flow-ref doc:name="Flow Reference" doc:id="03fe0d64-42ac-4e52-a8e3-601486ec5eea" name="errorHandler"/>
